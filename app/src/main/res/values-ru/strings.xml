@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SeaApp</string>
+    <string name="input_horiz">Горизонталь</string>
+    <string name="input_vertic">Вертикаль</string>
+</resources>
