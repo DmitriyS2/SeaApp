@@ -1,7 +1,10 @@
 package ru.netology.seaapp.activity
 
+import android.animation.ObjectAnimator
+import android.animation.PropertyValuesHolder
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -19,6 +22,17 @@ class GameFragment : Fragment() {
 
     val viewmodel: MainViewModel by activityViewModels()
 
+    val maxShips: Int = 10
+
+    val listStatus: List<String> = listOf(
+        "Постановка своих кораблей",
+        "Постановка кораблей противником",
+        "Мой ход",
+        "Ход противника",
+        "Победил!!!",
+        "Проиграл"
+    )
+
     @SuppressLint("SetTextI18n")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -30,12 +44,18 @@ class GameFragment : Fragment() {
 
         val adapterMy = CellAdapter(object : Listener {
             override fun clickCell(cell: Cell) {
-                //    TODO("Not yet implemented")
+                if (viewmodel.status.value == 0) {
+                    viewmodel.pressCell(cell)
+                }
+
             }
         })
         val adapterEnemy = CellAdapter(object : Listener {
             override fun clickCell(cell: Cell) {
-                //    TODO("Not yet implemented")
+                if (viewmodel.status.value == 2) {
+                    viewmodel.pressCell(cell)
+                }
+
             }
         })
 
@@ -45,14 +65,27 @@ class GameFragment : Fragment() {
             rcMyView.adapter = adapterMy
             rcCompView.layoutManager = GridLayoutManager(activity, 10)
             rcCompView.adapter = adapterEnemy
-            //      rcCompView.visibility = View.GONE
 
             viewmodel.myShipsCount.observe(viewLifecycleOwner) {
-                textMyField.text = "Мое корабли: $it"
+                textMyField.text = "Мои корабли: $it"
+                if (viewmodel.status.value == 0 && it == maxShips) {
+               //     viewmodel.installEnemyShips()
+               //     Thread.sleep(3000)
+                    viewmodel.status.value = 1 //установка комп кораблей
+                }
+                if (viewmodel.status.value != 0 && it == 0) {
+                    viewmodel.status.value = 5 //проигрыш
+                }
             }
 
             viewmodel.enemyShipsCount.observe(viewLifecycleOwner) {
                 textCompField.text = "Корабли противника: $it"
+                if (viewmodel.status.value == 1 && it == maxShips) {
+                    viewmodel.status.value = 2 //мой ход
+                }
+                if (viewmodel.status.value != 0 && viewmodel.status.value != 1 && it == 0) {
+                    viewmodel.status.value = 4 //выигрыш
+                }
             }
 
             viewmodel.myShips.observe(viewLifecycleOwner) {
@@ -60,6 +93,57 @@ class GameFragment : Fragment() {
             }
             viewmodel.enemyShips.observe(viewLifecycleOwner) {
                 adapterEnemy.submitList(it.listCell)
+            }
+
+            viewmodel.idPressedCheck.observe(viewLifecycleOwner) {
+                buttonOk.isEnabled = it != 0
+                Log.d("MyLog", "idPressedCheck=$it enabled=${buttonOk.isEnabled}")
+            }
+
+            buttonOk.setOnClickListener {
+                ObjectAnimator.ofPropertyValuesHolder(
+                    buttonOk,
+                    PropertyValuesHolder.ofFloat(View.SCALE_X, 1.0F, 1.3F, 1.0F),
+                    PropertyValuesHolder.ofFloat(View.SCALE_Y, 1.0F, 1.3F, 1.0F)
+                ).start()
+                Log.d(
+                    "MyLog",
+                    "enemyStep=${viewmodel.enemyStep} size = ${viewmodel.enemyStep.size}"
+                )
+                when (viewmodel.status.value) {
+                    0 -> {
+                        viewmodel.addMyShip()
+                    }
+
+                    2 -> {
+
+                    }
+                }
+            }
+
+            viewmodel.status.observe(viewLifecycleOwner) {
+                textStatus.text = listStatus[it]
+                when (it) {
+                    0 -> {
+
+                    }
+
+                    2 -> {
+                        buttonOk.isEnabled = false
+                    }
+
+                    3 -> {
+
+                    }
+
+                    4 -> {
+
+                    }
+
+                    5 -> {
+
+                    }
+                }
             }
         }
 //            buttonPlus.setOnClickListener {

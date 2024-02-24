@@ -52,5 +52,30 @@
         android:layout_marginTop="8dp"
         />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textStatus"
+        app:layout_constraintTop_toBottomOf="@id/rcCompView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:textSize="20sp"
+        android:layout_marginTop="8dp"
+        android:textStyle="bold"
+        tools:text = "Постановка своих кораблей"
+        />
+
+<Button
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    app:layout_constraintTop_toBottomOf="@id/textStatus"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    android:layout_marginTop="16dp"
+    android:text="Ok"
+    android:textSize="24sp"
+    android:id="@+id/buttonOk"
+    android:textColor="@color/white"
+    />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,5 +1,7 @@
 package ru.netology.seaapp.adapter
 
+import android.animation.ObjectAnimator
+import android.animation.PropertyValuesHolder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,28 +12,39 @@ import ru.netology.seaapp.R
 import ru.netology.seaapp.databinding.CellItemBinding
 import ru.netology.seaapp.dto.Cell
 
-interface Listener{
+interface Listener {
     fun clickCell(cell: Cell)
 }
 
-class CellAdapter (private val listener: Listener):  ListAdapter<Cell, CellAdapter.CellHolder>(CellDiffCallback()) {
+class CellAdapter(private val listener: Listener) :
+    ListAdapter<Cell, CellAdapter.CellHolder>(CellDiffCallback()) {
 
     class CellHolder(item: View, private val listener: Listener) : RecyclerView.ViewHolder(item) {
         private val binding = CellItemBinding.bind(item)
 
         fun bind(cell: Cell) = with(binding) {
 
-               imageCell.setImageResource(when{
+            imageCell.setImageResource(
+                when {
                     cell.isEmpty -> R.drawable.empty_24
                     cell.isMissed -> (R.drawable.clear_24)
                     cell.isDeadShip -> (R.drawable.fire_24)
                     cell.itIsMe && cell.isLiveShip -> (R.drawable.ship_24)
                     !cell.itIsMe && cell.isLiveShip -> (R.drawable.empty_24)
-                   else -> 0
-               })
-                imageCell.setOnClickListener {
-                    listener.clickCell(cell)
+                 //   cell.isDoNotAdd -> R.drawable.clear_24
+                    else -> 0
                 }
+            )
+            imageCell.setOnClickListener {
+                ObjectAnimator.ofPropertyValuesHolder(
+                    imageCell,
+                    PropertyValuesHolder.ofFloat(View.SCALE_X, 1.0F, 1.3F, 1.0F),
+                    PropertyValuesHolder.ofFloat(View.SCALE_Y, 1.0F, 1.3F, 1.0F)
+                ).start()
+                listener.clickCell(cell)
+            }
+
+            imageCell.setBackgroundResource(if (cell.isChecked) R.color.blue else R.color.light_blue)
 
         }
     }

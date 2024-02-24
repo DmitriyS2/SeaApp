@@ -22,11 +22,11 @@ class BeginFragment : Fragment() {
             textBattle.alpha = 0f
             textSea.text = "МОРСКОЙ"
             textBattle.text = "БОЙ"
-            textSea.animate().alpha(1f).translationYBy(-50f).setStartDelay(300).duration = 1500
-            textBattle.animate().alpha(1f).translationYBy(-50f).setStartDelay(300).duration = 1500
+            textSea.animate().alpha(1f).translationYBy(-50f).setStartDelay(300).duration = 1000
+            textBattle.animate().alpha(1f).translationYBy(-50f).setStartDelay(300).duration = 1000
 
             buttonStart.alpha = 0f
-            buttonStart.animate().alpha(1f).translationYBy(-50f).setStartDelay(1500).duration = 1500
+            buttonStart.animate().alpha(1f).translationYBy(-50f).setStartDelay(1000).duration = 1000
 
             buttonStart.setOnClickListener {
                 findNavController().navigate(R.id.gameFragment)
