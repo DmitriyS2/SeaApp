@@ -18,11 +18,11 @@ import ru.netology.seaapp.databinding.FragmentGameBinding
 import ru.netology.seaapp.dto.Cell
 import ru.netology.seaapp.viewmodel.MainViewModel
 
+const val maxShips: Int = 10
+
 class GameFragment : Fragment() {
 
-    val viewmodel: MainViewModel by activityViewModels()
-
-    val maxShips: Int = 10
+    val viewModel: MainViewModel by activityViewModels()
 
     val listStatus: List<String> = listOf(
         "Постановка своих кораблей",
@@ -44,16 +44,16 @@ class GameFragment : Fragment() {
 
         val adapterMy = CellAdapter(object : Listener {
             override fun clickCell(cell: Cell) {
-                if (viewmodel.status.value == 0) {
-                    viewmodel.pressCell(cell)
+                if (viewModel.status.value == 0) {
+                    viewModel.pressCell(cell)
                 }
 
             }
         })
         val adapterEnemy = CellAdapter(object : Listener {
             override fun clickCell(cell: Cell) {
-                if (viewmodel.status.value == 2) {
-                    viewmodel.pressCell(cell)
+                if (viewModel.status.value == 2) {
+                    viewModel.pressCell(cell)
                 }
 
             }
@@ -66,36 +66,35 @@ class GameFragment : Fragment() {
             rcCompView.layoutManager = GridLayoutManager(activity, 10)
             rcCompView.adapter = adapterEnemy
 
-            viewmodel.myShipsCount.observe(viewLifecycleOwner) {
+            viewModel.myShipsCount.observe(viewLifecycleOwner) {
                 textMyField.text = "Мои корабли: $it"
-                if (viewmodel.status.value == 0 && it == maxShips) {
-               //     viewmodel.installEnemyShips()
-               //     Thread.sleep(3000)
-                    viewmodel.status.value = 1 //установка комп кораблей
+                if (viewModel.status.value == 0 && it == maxShips) {
+                    viewModel.status.value = 1 //установка комп кораблей
+                    viewModel.installEnemyShips()
                 }
-                if (viewmodel.status.value != 0 && it == 0) {
-                    viewmodel.status.value = 5 //проигрыш
+                if (viewModel.status.value != 0 && it == 0) {
+                    viewModel.status.value = 5 //проигрыш
                 }
             }
 
-            viewmodel.enemyShipsCount.observe(viewLifecycleOwner) {
+            viewModel.enemyShipsCount.observe(viewLifecycleOwner) {
                 textCompField.text = "Корабли противника: $it"
-                if (viewmodel.status.value == 1 && it == maxShips) {
-                    viewmodel.status.value = 2 //мой ход
+                if (viewModel.status.value == 1 && it == maxShips) {
+                    viewModel.status.value = 2 //мой ход
                 }
-                if (viewmodel.status.value != 0 && viewmodel.status.value != 1 && it == 0) {
-                    viewmodel.status.value = 4 //выигрыш
+                if (viewModel.status.value != 0 && viewModel.status.value != 1 && it == 0) {
+                    viewModel.status.value = 4 //выигрыш
                 }
             }
 
-            viewmodel.myShips.observe(viewLifecycleOwner) {
+            viewModel.myShips.observe(viewLifecycleOwner) {
                 adapterMy.submitList(it.listCell)
             }
-            viewmodel.enemyShips.observe(viewLifecycleOwner) {
+            viewModel.enemyShips.observe(viewLifecycleOwner) {
                 adapterEnemy.submitList(it.listCell)
             }
 
-            viewmodel.idPressedCheck.observe(viewLifecycleOwner) {
+            viewModel.idPressedCheck.observe(viewLifecycleOwner) {
                 buttonOk.isEnabled = it != 0
                 Log.d("MyLog", "idPressedCheck=$it enabled=${buttonOk.isEnabled}")
             }
@@ -106,34 +105,47 @@ class GameFragment : Fragment() {
                     PropertyValuesHolder.ofFloat(View.SCALE_X, 1.0F, 1.3F, 1.0F),
                     PropertyValuesHolder.ofFloat(View.SCALE_Y, 1.0F, 1.3F, 1.0F)
                 ).start()
-                Log.d(
-                    "MyLog",
-                    "enemyStep=${viewmodel.enemyStep} size = ${viewmodel.enemyStep.size}"
-                )
-                when (viewmodel.status.value) {
+//                Log.d(
+//                    "MyLog",
+//                    "enemyStep=${viewmodel.enemyStep} size = ${viewmodel.enemyStep.size}"
+//                )
+                when (viewModel.status.value) {
                     0 -> {
-                        viewmodel.addMyShip()
+                        viewModel.addMyShip()
                     }
 
                     2 -> {
 
+                       val t = viewModel.hitEnemy()
+                        Log.d("MyLog", "hitEnemy=$t")
+//                        if(!viewModel.hitEnemy()) {
+//                            viewModel.status.value=3
+//                        }
                     }
                 }
             }
 
-            viewmodel.status.observe(viewLifecycleOwner) {
+            viewModel.status.observe(viewLifecycleOwner) {
                 textStatus.text = listStatus[it]
+                Log.d("MyLog", "status=$it")
                 when (it) {
                     0 -> {
 
                     }
 
-                    2 -> {
+                    1 -> {
                         buttonOk.isEnabled = false
                     }
 
-                    3 -> {
+                    2 -> {
+                        Log.d(
+                            "MyLog",
+                            "enemyShipsForInstall=${viewModel.enemyShipsForInstall}, size=${viewModel.enemyShipsForInstall.size}"
+                        )
+                    }
 
+                    3 -> {
+                        buttonOk.isEnabled = false
                     }
 
                     4 -> {
@@ -146,73 +158,9 @@ class GameFragment : Fragment() {
                 }
             }
         }
-//            buttonPlus.setOnClickListener {
-//                if (countMyShip < maxShip) {
-//                    if (isCoordinatTrue()) {
-//                        val x = edA.text.toString().toInt()
-//                        val y = edB.text.toString().toInt()
-//                        val pos = ((x + 1) * 11 + (y + 1))
-//
-//                        adapterMy.changeCell("#0d18a8", position = pos)
-//                        edA.setText("")
-//                        edB.setText("")
-//                        countMyShip++
-//                        textCountShip.text = "${countMyShip}й корабль"
-//                        if (countMyShip == maxShip) {
-//                            textInputLayoutA.visibility = View.GONE
-//                            textInputLayoutB.visibility = View.GONE
-//                            textCountShip.text = "ГОТОВО!"
-//                            buttonPlus.text = "OK"
-//                        }
-//                    }
-//                }
-//
-//            }
-
 
         return binding.root
     }
-//    private fun isCoordinatTrue(): Boolean {
-//        var flag = true
-//        binding.apply {
-//            if (edA.text.isNullOrEmpty()) {
-//                edA.error = "Поле должно быть заполнено"
-//                flag = false
-//            } else if (edA.text.toString().toInt() < 0 || edA.text.toString().toInt() > 9) {
-//                edA.error = "Значения от 0 до 9"
-//                flag = false
-//            }
-//            if (edB.text.isNullOrEmpty()) {
-//                edB.error = "Поле должно быть заполнено"
-//                flag = false
-//            } else if (edB.text.toString().toInt() < 0 || edB.text.toString().toInt() > 9) {
-//                edB.error = "Значения от 0 до 9"
-//                flag = false
-//            }
-//            return flag
-//        }
-//    }
-//    private fun fillField(adapter: CellAdapter, colorBack: String, colorBackBorder: String) {
-//        for (index1 in 0..120) {
-//            val cell = Cell(" ", "#FF000000", colorBack)
-//            when {
-//                index1 in 1..10 -> {
-//                    cell.text = (index1 - 1).toString()
-//                    cell.backColor = colorBackBorder
-//                }
-//
-//                index1 % 11 == 0 && index1 != 0 -> {
-//                    cell.text = (index1 / 11 - 1).toString()
-//                    cell.backColor = colorBackBorder
-//                }
-//
-//                index1 == 0 -> {
-//                    cell.backColor = colorBackBorder
-//                }
-//            }
-//            adapter.addCell(cell)
-//        }
-//    }
 
     companion object {
         @JvmStatic
