@@ -2,8 +2,8 @@ package ru.netology.seaapp.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ru.netology.seaapp.activity.maxShips
@@ -11,7 +11,6 @@ import ru.netology.seaapp.dto.Cell
 import ru.netology.seaapp.model.ShipModel
 import ru.netology.seaapp.repository.Repository
 import ru.netology.seaapp.repository.RepositoryImpl
-import kotlin.random.Random
 
 class MainViewModel : ViewModel() {
     private val repository: Repository = RepositoryImpl()
@@ -29,9 +28,8 @@ class MainViewModel : ViewModel() {
         !it.itIsMe && it.isLiveShip
     } ?: 0)
 
-    val enemyStep: MutableList<Int>
+    var enemyStep: MutableList<Int>
     var enemyShipsForInstall: MutableList<Int>
-
 
     init {
         myShips.value = ShipModel(listCell = repository.fillEmpty(true), itIsMe = true)
@@ -42,10 +40,6 @@ class MainViewModel : ViewModel() {
         enemyShipsForInstall = enemyShips.value!!.listCell.map {
             it.id
         }.toMutableList()
-//        val d = myShips.value!!.listCell[5]
-        //        enemyStep.remove(101)
-
-
     }
 
     fun pressCell(cell: Cell) {
@@ -107,7 +101,9 @@ class MainViewModel : ViewModel() {
 
         enemyShips.value = ShipModel(
             listCell = repository.hitEnemy(
-                enemyShips.value?.listCell.orEmpty().toMutableList(), idPressedCheck.value ?: 0
+                enemyShips.value?.listCell.orEmpty().toMutableList(),
+                idPressedCheck.value ?: 0,
+                flag
             ), itIsMe = false
         )
         idPressedCheck.value = 0
@@ -119,4 +115,63 @@ class MainViewModel : ViewModel() {
         return flag
     }
 
+    fun attackOfEnemy() {
+        viewModelScope.launch {
+            var flag = true
+            while (flag) {
+                delay(900)
+                val idShip: Int = enemyStep.random()
+
+                flag = myShips.value?.listCell?.find {
+                    it.id == idShip
+                }?.isLiveShip ?: false
+
+                myShips.value = ShipModel(
+                    listCell = repository.attackOfEnemy(
+                        myShips.value?.listCell.orEmpty().toMutableList(), idShip, flag
+                    ), itIsMe = true
+                )
+
+                enemyStep.remove(idShip)
+                if (flag) enemyStep = repository.deleteEnvironment(enemyStep, idShip)
+
+                myShipsCount.value = myShips.value?.listCell?.count {
+                    it.itIsMe && it.isLiveShip
+                } ?: 0
+                if (myShipsCount.value==0) {
+                    delay(1000)
+                    status.value=5
+                    flag=false
+                }
+            }
+
+            if(status.value!=5) {
+                delay(500)
+                status.value = 2
+            }
+        }
+    }
+
+    fun newGame() {
+        myShips.value = ShipModel(listCell = repository.fillEmpty(true), itIsMe = true)
+        enemyShips.value = ShipModel(listCell = repository.fillEmpty(false), itIsMe = false)
+        enemyStep = myShips.value!!.listCell.map {
+            it.id
+        }.toMutableList()
+        enemyShipsForInstall = enemyShips.value!!.listCell.map {
+            it.id
+        }.toMutableList()
+
+        idPressedCheck.value=0
+
+         status.value=0
+
+        myShipsCount.value = myShips.value?.listCell?.count {
+            it.itIsMe && it.isLiveShip
+        } ?: 0
+        enemyShipsCount.value = enemyShips.value?.listCell?.count {
+            !it.itIsMe && it.isLiveShip
+        } ?: 0
+
+    }
 }

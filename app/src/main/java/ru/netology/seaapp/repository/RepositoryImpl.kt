@@ -15,7 +15,7 @@ class RepositoryImpl : Repository {
             count++
         }
 
-        if (count == 200) count = 1
+        if (count >= 200) count = 1
 
         return list
     }
@@ -95,15 +95,15 @@ class RepositoryImpl : Repository {
         return enemyShipsForInstall
     }
 
-    override fun hitEnemy(list: MutableList<Cell>, id: Int): MutableList<Cell> {
-        val flag = list.find {
-            it.id == id
-        }?.isLiveShip ?: false
+    override fun hitEnemy(list: MutableList<Cell>, id: Int, flag: Boolean): MutableList<Cell> {
+//        val flag = list.find {
+//            it.id == id
+//        }?.isLiveShip ?: false
 
 //        if (list.find {
 //                it.id == id
 //            }?.isLiveShip == false) {
-        if(!flag) {
+        if (!flag) {
             val newList: MutableList<Cell> = list.map {
                 it.copy(
                     isMissed = if (it.id == id) true else it.isMissed,
@@ -130,9 +130,9 @@ class RepositoryImpl : Repository {
                 } else {
                     newList = newList.map {
                         it.copy(
-                      //      isDoNotAdd = if (it.id == number) flag else it.isDoNotAdd,
-                            isEmpty = if(it.id==number) false else it.isEmpty,
-                            isMissed =  if(it.id==number) true else it.isMissed
+                            //      isDoNotAdd = if (it.id == number) flag else it.isDoNotAdd,
+                            isEmpty = if (it.id == number) false else it.isEmpty,
+                            isMissed = if (it.id == number) true else it.isMissed
 //                            isChecked = if(it.id==id) !it.isChecked else it.isChecked,
 //                            isLiveShip = if(it.id==id) !it.isLiveShip else it.isLiveShip
                         )
@@ -141,5 +141,48 @@ class RepositoryImpl : Repository {
             }
             return newList
         }
+    }
+
+    override fun attackOfEnemy(
+        list: MutableList<Cell>,
+        idShip: Int,
+        flag: Boolean
+    ): MutableList<Cell> {
+        if (!flag) {
+            val newList: MutableList<Cell> = list.map {
+                it.copy(
+                    isMissed = if (it.id == idShip) true else it.isMissed,
+                    isEmpty = if (it.id == idShip) false else it.isEmpty,
+                    //    isChecked = if (it.id == idShip) false else it.isChecked
+                )
+            }.toMutableList()
+            return newList
+        } else {
+            val newList: MutableList<Cell> = list.map {
+                it.copy(
+                    isEmpty = if (it.id == idShip) false else it.isEmpty,
+                    isChecked = if (it.id == idShip) false else it.isChecked,
+                    isLiveShip = if (it.id == idShip) false else it.isLiveShip,
+                    isDeadShip = if (it.id == idShip) true else it.isDeadShip
+                )
+            }.toMutableList()
+
+
+            return newList
+        }
+    }
+
+    override fun deleteEnvironment(enemyStep: MutableList<Int>, idShip: Int): MutableList<Int> {
+
+        val y = idShip % 10
+        for (i in listEnvironment) {
+            val number = idShip + i
+            if ((number > 100) || (number < 0) || ((y == 0) && (i == -9 || i == 1 || i == 11)) || ((y == 1) && (i == -11 || i == -1 || i == 9))) {
+                continue
+            } else {
+                enemyStep.remove(number)
+            }
+        }
+        return enemyStep
     }
 }

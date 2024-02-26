@@ -9,15 +9,33 @@
         android:id="@+id/beginFragment"
         android:name="ru.netology.seaapp.activity.BeginFragment"
         android:label="fragment_begin"
-        tools:layout="@layout/fragment_begin" />
+        tools:layout="@layout/fragment_begin" >
+        <action
+            android:id="@+id/action_beginFragment_to_gameFragment"
+            app:destination="@id/gameFragment"
+            app:enterAnim="@android:anim/slide_in_left"
+            app:exitAnim="@anim/nav_default_exit_anim" />
+    </fragment>
     <fragment
         android:id="@+id/gameFragment"
         android:name="ru.netology.seaapp.activity.GameFragment"
         android:label="fragment_game"
-        tools:layout="@layout/fragment_game" />
+        tools:layout="@layout/fragment_game" >
+        <action
+            android:id="@+id/action_gameFragment_to_endFragment"
+            app:destination="@id/endFragment"
+            app:enterAnim="@android:anim/slide_in_left"
+            app:exitAnim="@anim/nav_default_exit_anim" />
+    </fragment>
     <fragment
         android:id="@+id/endFragment"
         android:name="ru.netology.seaapp.activity.EndFragment"
         android:label="fragment_end"
-        tools:layout="@layout/fragment_end" />
+        tools:layout="@layout/fragment_end" >
+        <action
+            android:id="@+id/action_endFragment_to_beginFragment"
+            app:destination="@id/beginFragment"
+            app:enterAnim="@android:anim/slide_in_left"
+            app:exitAnim="@anim/nav_default_exit_anim" />
+    </fragment>
 </navigation>

@@ -16,6 +16,7 @@ class BeginFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val binding = FragmentBeginBinding.inflate(inflater, container, false)
+        requireActivity().window.statusBarColor = requireContext().getColor(R.color.blue)
 
         binding.apply {
             textSea.alpha = 0f
@@ -29,7 +30,7 @@ class BeginFragment : Fragment() {
             buttonStart.animate().alpha(1f).translationYBy(-50f).setStartDelay(1000).duration = 1000
 
             buttonStart.setOnClickListener {
-                findNavController().navigate(R.id.gameFragment)
+                findNavController().navigate(R.id.action_beginFragment_to_gameFragment)
             }
         }
 

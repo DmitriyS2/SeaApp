@@ -43,9 +43,9 @@ class CellAdapter(private val listener: Listener) :
                         ).start()
                         (R.drawable.fire_24)
                     }
-//                    cell.itIsMe && cell.isLiveShip -> (R.drawable.ship_24)
-//                    !cell.itIsMe && cell.isLiveShip -> (R.drawable.empty_24)
-                     cell.isLiveShip -> (R.drawable.ship_24)
+                    cell.itIsMe && cell.isLiveShip -> (R.drawable.ship_24)
+                    !cell.itIsMe && cell.isLiveShip -> (R.drawable.empty_24)
+               //      cell.isLiveShip -> (R.drawable.ship_24)
                  //   cell.isDoNotAdd -> R.drawable.clear_24
                     else -> 0
                 }

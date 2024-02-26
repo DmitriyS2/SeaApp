@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import ru.netology.seaapp.R
 import ru.netology.seaapp.adapter.CellAdapter
@@ -25,12 +26,12 @@ class GameFragment : Fragment() {
     val viewModel: MainViewModel by activityViewModels()
 
     val listStatus: List<String> = listOf(
-        "Постановка своих кораблей",
-        "Постановка кораблей противником",
+        "Отметьте 10 кораблей на поле",
+        "Противник устанавливает корабли",
         "Мой ход",
         "Ход противника",
-        "Победил!!!",
-        "Проиграл"
+        "Победа!!!",
+        "Вы проиграли..."
     )
 
     @SuppressLint("SetTextI18n")
@@ -72,9 +73,9 @@ class GameFragment : Fragment() {
                     viewModel.status.value = 1 //установка комп кораблей
                     viewModel.installEnemyShips()
                 }
-                if (viewModel.status.value != 0 && it == 0) {
-                    viewModel.status.value = 5 //проигрыш
-                }
+//                if (viewModel.status.value != 0 && it == 0) {
+//                    viewModel.status.value = 5 //проигрыш
+//                }
             }
 
             viewModel.enemyShipsCount.observe(viewLifecycleOwner) {
@@ -115,12 +116,11 @@ class GameFragment : Fragment() {
                     }
 
                     2 -> {
-
-                       val t = viewModel.hitEnemy()
-                        Log.d("MyLog", "hitEnemy=$t")
-//                        if(!viewModel.hitEnemy()) {
-//                            viewModel.status.value=3
-//                        }
+//                       val t = viewModel.hitEnemy()
+//                        Log.d("MyLog", "hitEnemy=$t")
+                        if(!viewModel.hitEnemy()) {
+                            viewModel.status.value=3
+                        }
                     }
                 }
             }
@@ -130,30 +130,35 @@ class GameFragment : Fragment() {
                 Log.d("MyLog", "status=$it")
                 when (it) {
                     0 -> {
-
+                        buttonOk.visibility = View.VISIBLE
                     }
 
                     1 -> {
-                        buttonOk.isEnabled = false
+                        buttonOk.visibility = View.GONE
                     }
 
                     2 -> {
+                        buttonOk.visibility = View.VISIBLE
                         Log.d(
                             "MyLog",
-                            "enemyShipsForInstall=${viewModel.enemyShipsForInstall}, size=${viewModel.enemyShipsForInstall.size}"
+                            "enemyStep=${viewModel.enemyStep},\n size=${viewModel.enemyStep.size}"
                         )
                     }
 
                     3 -> {
-                        buttonOk.isEnabled = false
+                        buttonOk.visibility = View.GONE
+                            viewModel.attackOfEnemy()
                     }
 
                     4 -> {
+                      //  buttonOk.visibility = View.GONE
+                        findNavController().navigate(R.id.action_gameFragment_to_endFragment)
 
                     }
 
                     5 -> {
-
+                     //   buttonOk.visibility = View.GONE
+                        findNavController().navigate(R.id.action_gameFragment_to_endFragment)
                     }
                 }
             }
